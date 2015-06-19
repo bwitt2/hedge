@@ -1,2 +1,2 @@
-# hedge :house:�::
+# hedge :house:
 A minimalist stock search engine.
