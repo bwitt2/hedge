@@ -1,2 +1,2 @@
-# hedge
+# hedge 
 A minimalist stock search engine.
