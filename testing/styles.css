@@ -27,6 +27,16 @@ html,body,#container {
 .line.loss {
 	stroke: #ED4E56;
 }
+
+.overlay {
+	fill: none;
+	pointer-events: all;
+}
+
+.focus circle {
+	fill: #ED4E56;
+	stroke: #ED4E56.
+}
 #curtain {
 	color: #fff;
 	z-index: 1;

@@ -64,6 +64,9 @@ height: 100%;
 		height = $(window).height()-100;
 
 		var parseDate = d3.time.format("%d-%b-%y").parse;
+			bisectDate = d3.bisector(function(d) { return d.date; }).left,
+			formatValue = d3.format(",.2f"),
+			formatCurrency = function(d) { return "$" + formatValue(d); };
 
 		var x = d3.time.scale()
 		.range([0, width]);
@@ -97,7 +100,13 @@ height: 100%;
 				d.close = +d.close;
 			});
 
-			x.domain(d3.extent(data, function(d) { return d.date; }));
+			data.sort(function(a, b) {
+				return a.date - b.date;
+			});
+
+			console.log(data);
+
+			x.domain([data[0].date, data[data.length - 1].date]);
 			y.domain(d3.extent(data, function(d) { return d.close; }));
 
 
@@ -105,6 +114,38 @@ height: 100%;
 			.datum(data)
 			.attr("class", "line")
 			.attr("d", line);
+
+			var focus = svg.append("g")
+			.attr("class", "focus")
+			.style("display", "none");
+
+			focus.append("circle")
+			.attr("r", 4.5);
+
+			focus.append("text")
+			.attr("x", 9)
+			.attr("y", 15)
+			.attr("dy", ".35em");
+
+			svg.append("rect")
+			.attr("class", "overlay")
+			.attr("width", width)
+			.attr("height", height)
+			.on("mouseover", function() { focus.style("display", null); })
+			.on("mouseout", function() { focus.style("display", "none"); })
+			.on("mousemove", mousemove);
+
+			function mousemove(e) {
+				console.log(e);
+				var x0 = x.invert(d3.mouse(this)[0]);
+				var i = bisectDate(data, x0, 1)
+				var d0 = data[i - 1];
+				var d1 = data[i]
+				var d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+				console.log(d);
+				focus.attr("transform", "translate(" + x(d.date) + "," + y(d.close) + ")");
+				focus.select("text").text(formatCurrency(d.close));
+			}
 		});
 
 		function isStock(ticker) {
@@ -149,7 +190,7 @@ height: 100%;
 		$(document).ready(function() {
 			//$('#curtain').animate({'width':0},1000, "easeInOutQuart");
 		});
-		$( window ).resize(function() {
+		$(window).resize(function() {
 			svg.attr("width", $(window).width()).attr("height", $(window).height());
 		});
 
